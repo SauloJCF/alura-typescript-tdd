@@ -1,7 +1,8 @@
 import { Task } from "../../../entities/task";
 import { AddTask, AddTaskModel } from "../../../usecases";
 import { HttpRequest, Validation } from "../../interfaces";
-import { serverError } from "../../presentations/api/httpResponses/httpResponses";
+import { MissingParamError } from "../../presentations/api/errors/missing-param-error";
+import { badRequest, serverError } from "../../presentations/api/httpResponses/httpResponses";
 import { AddTaskController } from "./addTask";
 
 const BODY = {
@@ -96,6 +97,19 @@ describe("AddTask Controller", () => {
     await sut.handle(httpRequest);
 
     expect(validationSpy).toHaveBeenCalledWith(BODY);
+  });
+
+  test("Deve retornar 500 se validateTask lançar uma exceção", async () => {
+    const { validationStub, sut } = makeSut();
+    const httpRequest = makeFakeRequest();
+
+    jest
+      .spyOn(validationStub, "validate")
+      .mockReturnValueOnce(new MissingParamError("any_field"));
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse).toEqual(badRequest(new MissingParamError("any_field")));
   });
 });
 
