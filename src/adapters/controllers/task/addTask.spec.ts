@@ -1,6 +1,7 @@
 import { Task } from "../../../entities/task";
 import { AddTask, AddTaskModel } from "../../../usecases";
 import { HttpRequest, Validation } from "../../interfaces";
+import { serverError } from "../../presentations/api/httpResponses/httpResponses";
 import { AddTaskController } from "./addTask";
 
 const BODY = {
@@ -61,9 +62,9 @@ const makeSut = (): SubTypes => {
 
 describe("AddTask Controller", () => {
   test("Deve chamar AddTask com valores corretos", async () => {
-    const httpRequest = makeFakeRequest();
-
     const { addTaskStub, sut } = makeSut();
+
+    const httpRequest = makeFakeRequest();
 
     const addTaskSpy = jest.spyOn(addTaskStub, "add");
 
@@ -71,4 +72,30 @@ describe("AddTask Controller", () => {
 
     expect(addTaskSpy).toHaveBeenCalledWith(BODY);
   });
+
+  test("Deve retornar 500 se addTask lançar uma exceção", async () => {
+    const { addTaskStub, sut } = makeSut();
+    const httpRequest = makeFakeRequest();
+
+    jest
+      .spyOn(addTaskStub, "add")
+      .mockImplementationOnce(async () => Promise.reject(new Error()));
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse).toEqual(serverError(new Error()))
+  });
+
+  test("Deve chamar validation com valores corretos", async () => {
+    const { validationStub, sut } = makeSut();
+
+    const httpRequest = makeFakeRequest();
+
+    const validationSpy = jest.spyOn(validationStub, "validate");
+
+    await sut.handle(httpRequest);
+
+    expect(validationSpy).toHaveBeenCalledWith(BODY);
+  });
 });
+
