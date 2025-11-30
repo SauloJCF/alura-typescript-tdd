@@ -3,13 +3,17 @@ import { AddTask, AddTaskModel } from "../../../usecases";
 import { Validation } from "../../interfaces";
 import { AddTaskController } from "./addTask";
 
+const BODY = {
+  title: "any_title",
+  description: "any_description",
+  date: "30/06/2024",
+};
+
 class AddTaskStub implements AddTask {
   async add(task: AddTaskModel): Promise<Task> {
     return Promise.resolve({
       id: "any",
-      title: "any_title",
-      description: "any_description",
-      date: "30/06/2024"
+      ...BODY
     });
   }
 }
@@ -24,22 +28,21 @@ describe("AddTask Controller", () => {
   test("Deve chamar AddTask com valores corretos", async () => {
     const httpRequest = {
       body: {
-        title: "any_title",
-        description: "any_description",
-        date: "30/06/2024",
+        ...BODY
       },
     };
 
+    const addTaskStub = new AddTaskStub();
+
     const addTaskController = new AddTaskController(
-      new AddTaskStub(),
+      addTaskStub,
       new ValidationStub()
     );
 
-    const httpResponse = await addTaskController.handle(httpRequest);
+    const addTaskSpy = jest.spyOn(addTaskStub, "add");
 
-    expect(httpResponse.statusCode).toBe(201);
-    expect(httpResponse.body.title).toBe("any_title");
-    expect(httpResponse.body.description).toBe("any_description");
-    expect(httpResponse.body.date).toBe("30/06/2024");
+    await addTaskController.handle(httpRequest);
+
+    expect(addTaskSpy).toHaveBeenCalledWith(BODY);
   });
 });
