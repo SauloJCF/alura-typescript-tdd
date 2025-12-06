@@ -45,7 +45,12 @@ const makeFakeTask = (): Task[] => {
 
 describe('ListTasks Controller', () => {
     test('Retornar 204 se a lista estiver vazia', async () => {
-        const { sut } = makeSut();
+        const { sut, listTasksStub } = makeSut();
+
+        jest
+            .spyOn(listTasksStub, "list")
+            .mockReturnValueOnce(Promise.resolve([]))
+
         const taskList = await sut.handle({});
         expect(taskList).toEqual(noContent());
     });
