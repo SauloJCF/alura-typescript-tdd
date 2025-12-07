@@ -19,7 +19,7 @@ const makeFakeTasks = (): Task[] => {
     ];
 };
 
-const makeListTasksRepository = ():ListTasksRepository => {
+const makeListTasksRepository = (): ListTasksRepository => {
     class ListTasksRepositoryStub implements ListTasksRepository {
         async list(): Promise<Task[]> {
             return Promise.resolve(makeFakeTasks());
@@ -34,7 +34,7 @@ interface SutTypes {
     listTasksRepositoryStub: ListTasksRepository;
 }
 
-const makeSut = ():SutTypes => {
+const makeSut = (): SutTypes => {
     const listTasksRepositoryStub = makeListTasksRepository();
     const sut = new DbListTasks(listTasksRepositoryStub);
 
@@ -53,5 +53,24 @@ describe('DbListTasks', () => {
         await sut.list();
 
         expect(listSpy).toHaveBeenCalled();
+    });
+
+    test('Deve retornar tarefas em caso de sucesso', async () => {
+        const { sut } = makeSut();
+
+        const tasks = await sut.list();
+
+        expect(tasks).toEqual(makeFakeTasks());
+    });
+
+    test('Deve lançar um erro de ListTaskRepository lançar um erro', async () => {
+        const { sut, listTasksRepositoryStub } = makeSut();
+        jest
+            .spyOn(listTasksRepositoryStub, 'list')
+            .mockReturnValueOnce(Promise.reject(new Error()));
+
+        const promise = sut.list();
+
+        await expect(promise).rejects.toThrow();
     });
 });
