@@ -1,8 +1,17 @@
+import { AddTaskModel } from "../../../usecases";
 import { MongoManager } from "../../config/mongoManager";
 import { TaskMongoRepository } from "./taskMongoRepository";
 
 const makeSut = (): TaskMongoRepository => {
     return new TaskMongoRepository();
+}
+
+const makeFakeTask = (): AddTaskModel => {
+    return {
+        title: 'any_title',
+        description: 'any_description',
+        date: 'any_date',
+    };
 }
 
 describe('TaskMongoRepository', () => {
@@ -19,11 +28,7 @@ describe('TaskMongoRepository', () => {
     test('Deve criar task corretamente', async () => {
         const sut = makeSut();
 
-        const task = await sut.add({
-            title: 'any_title',
-            description: 'any_description',
-            date: 'any_date',
-        });
+        const task = await sut.add(makeFakeTask());
 
         expect(task.id).toBeTruthy();
 
@@ -37,11 +42,7 @@ describe('TaskMongoRepository', () => {
     test('Deve listar tasks corretamente', async () => {
         const sut = makeSut();
 
-        const novaTask = await sut.add({
-            title: 'any_title',
-            description: 'any_description',
-            date: 'any_date',
-        });
+        const novaTask = await sut.add(makeFakeTask());
 
         const tasks = await sut.list();
 
@@ -54,3 +55,5 @@ describe('TaskMongoRepository', () => {
         await sut.delete({ id: novaTask.id });
     });
 });
+
+
