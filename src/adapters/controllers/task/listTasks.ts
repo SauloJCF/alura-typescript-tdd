@@ -1,4 +1,3 @@
-import { Task } from "../../../entities/task";
 import { ListTasks } from "../../../usecases/listTasks";
 import { Controller, HttpRequest, HttpResponse } from "../../interfaces";
 import { noContent, ok, serverError } from "../../presentations/api/httpResponses/httpResponses";

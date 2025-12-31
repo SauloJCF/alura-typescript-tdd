@@ -5,6 +5,7 @@ export const expressRouteAdapter = (controller: Controller) => {
   return async (req: Request, res: Response) => {
     const httpRequest = {
       body: req.body,
+      params: req.params
     };
     const httpResponse = await controller.handle(httpRequest);
 
